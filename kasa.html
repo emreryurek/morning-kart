@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="tr"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Kasa Paneli</title>
+<meta name="robots" content="noindex">
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Kasa"><meta name="theme-color" content="#2f6f6a">
+<link rel="manifest" href="kasa.webmanifest"><link rel="apple-touch-icon" href="kasa-ikon.png">
+<link rel="stylesheet" href="kart.css?v=1">
+<style>
+.wrap{max-width:720px}
+.top{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.live{font-size:12px;font-weight:700;color:#2f7a4a;display:flex;align-items:center;gap:6px}.live i{width:8px;height:8px;border-radius:50%;background:#2fae5a;animation:bl 1.6s infinite}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:16px}
+.stat{background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px;text-align:center}.stat b{display:block;font-size:26px}.stat span{font-size:12px;color:var(--mut);font-weight:600}
+h3{font-size:13px;letter-spacing:2px;color:#8b8678;margin:24px 0 10px}
+.req{display:flex;align-items:center;gap:12px;background:#fff;border:2px solid var(--c1);border-radius:18px;padding:14px;margin-bottom:10px;animation:pop .4s}
+.req .who{flex:1}.req .who b{font-size:19px;display:block}.req .who span{font-size:13px;color:var(--mut)}
+.req button{border:0;border-radius:12px;padding:14px 16px;font:700 15px Inter,sans-serif;cursor:pointer}
+.ok{background:var(--c2);color:#fff}.no{background:var(--soft);color:var(--ink)}
+.empty{background:#fff;border:1px dashed #d9cdb9;border-radius:18px;padding:22px;text-align:center;color:var(--mut);font-size:14px}
+.row{display:flex;align-items:center;gap:10px;padding:12px 4px;border-bottom:1px solid var(--line);font-size:14px}.row b{flex:1;font-size:15px}
+.mini{display:flex;gap:3px}.mini i{width:11px;height:11px;border-radius:50%;background:var(--soft)}.mini i.on{background:var(--c1)}
+.hz{background:#fff3e6;border:2px solid var(--c1);border-radius:16px;padding:12px 14px;margin-bottom:8px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}.hz b{flex:1;font-size:16px}
+.hz a,.hz button{border:0;border-radius:10px;padding:11px 12px;font:700 13px Inter,sans-serif;cursor:pointer;text-decoration:none}
+.wa{background:#25d366;color:#fff}.gv{background:var(--c2);color:#fff}
+.modal{position:fixed;inset:0;background:rgba(20,25,24,.55);display:grid;place-items:center;padding:20px;z-index:10}
+.modal>div{background:#fff;border-radius:24px;padding:26px;max-width:380px;width:100%;text-align:center}.modal b{display:block;font-size:22px;margin:8px 0}
+.link{background:none;border:0;color:var(--mut);font:600 13px Inter,sans-serif;text-decoration:underline;cursor:pointer}
+@media(max-width:480px){.req{flex-wrap:wrap}.req .who{flex-basis:100%}.req button{flex:1}}
+</style>
+<script src="config.js?v=1"></script><script src="kart.js?v=1"></script>
+</head><body><div class="wrap">
+
+<div id="giris">
+ <div class="hdr"><div class="logo" id="logo"></div><span class="tag">KASA</span></div>
+ <h1>Kasa <em>paneli</em></h1><p class="lead">Damga taleplerini onaylamak için PIN kodunu gir.</p>
+ <div class="box"><label class="l" for="pin">PIN</label><input type="password" id="pin" inputmode="numeric" autocomplete="off" maxlength="12">
+ <label class="chk"><input type="checkbox" id="hatirla" checked><span>Bu cihazı hatırla (sadece kasadaki cihazda işaretle)</span></label>
+ <button class="btn b2" id="girBtn">Giriş</button><p class="msg" id="gmsg"></p></div>
+</div>
+
+<div id="panel" class="hide">
+ <div class="hdr top"><div class="logo" id="logo2"></div><span class="live"><i></i>CANLI</span></div>
+ <div class="stats"><div class="stat"><b id="sM">–</b><span>Kayıtlı müşteri</span></div><div class="stat"><b id="sB">–</b><span>Bugün damga</span></div><div class="stat"><b id="sH">–</b><span>Verilen hediye</span></div></div>
+ <h3>BEKLEYEN DAMGA TALEPLERİ</h3><div id="bekleyen"></div>
+ <div id="hazirWrap" class="hide"><h3>🎁 HEDİYE HAKKI OLANLAR</h3><div id="hazir"></div></div>
+ <h3>SON GELENLER</h3><div id="liste"></div>
+ <p class="small"><button class="link" id="ses">🔔 Sesi test et</button> · <button class="link" id="cikis">Çıkış</button></p>
+ <p class="foot">Müşteri kartı: <a id="kartLink" target="_blank"></a></p>
+</div>
+</div>
+<div class="modal hide" id="modal"><div><div style="font-size:44px">🎁</div><b>Kart doldu!</b><p class="lead" id="mTxt"></p>
+ <a class="btn" style="background:#25d366;color:#fff" id="mWa" target="_blank" rel="noopener">WhatsApp'tan Hediye Mesajı Gönder</a>
+ <button class="btn b3" id="mKapat">Kapat</button></div></div>
+<script>
+(function(){
+var K=KART,$=function(i){return document.getElementById(i)},pin=K.store('kasa-pin-'+K.isletme)||sessionStorage.getItem('kasa-pin')||'',info,bilinen={},timer,ac=null;
+var lg=K.sun(28)+'<div><b>'+K.ad.split(' ')[0].toUpperCase()+'</b><small>'+K.ad.split(' ').slice(1).join(' ')+'</small></div>';$('logo').innerHTML=lg;$('logo2').innerHTML=lg;
+var u=location.href.replace(/kasa\.html.*$/,'');$('kartLink').href=u;$('kartLink').textContent=u.replace(/^https?:\/\//,'');
+function bip(){try{ac=ac||new (window.AudioContext||window.webkitAudioContext)();[0,.18].forEach(function(t,i){var o=ac.createOscillator(),g=ac.createGain();o.frequency.value=i?1046:784;o.connect(g);g.connect(ac.destination);g.gain.setValueAtTime(.0001,ac.currentTime+t);g.gain.exponentialRampToValueAtTime(.35,ac.currentTime+t+.02);g.gain.exponentialRampToValueAtTime(.0001,ac.currentTime+t+.3);o.start(ac.currentTime+t);o.stop(ac.currentTime+t+.32)})}catch(e){}if(navigator.vibrate)navigator.vibrate(200)}
+function waLink(t){var m=K.hediyeMesaji.replace('{kart}',K.kartAdi).replace('{odul}',info.odul.toLocaleLowerCase('tr-TR')).replace('{ad}',K.ad);return 'https://wa.me/90'+K.tel(t)+'?text='+encodeURIComponent(m)}
+function hata(e){if(/PIN_/.test(e.message)){cikis();$('gmsg').textContent=K.mesaj(e.message);$('gmsg').className='msg err'}}
+function cikis(){clearInterval(timer);pin='';K.store('kasa-pin-'+K.isletme,null);sessionStorage.removeItem('kasa-pin');$('panel').classList.add('hide');$('giris').classList.remove('hide')}
+function zaman(s){var d=Math.round((Date.now()-new Date(s))/60000);return d<1?'az önce':d+' dk önce'}
+function bekleyen(){return K.rpc('kasa_bekleyen',{p_isletme:K.isletme,p_pin:pin}).then(function(l){var yeni=false,h='';
+ l.forEach(function(r){if(!bilinen[r.id]){bilinen[r.id]=1;yeni=true}
+  h+='<div class="req"><div class="who"><b>'+K.telGoster(r.telefon,true)+'</b><span>'+r.damga+' / '+info.hedef+' damga · '+(r.toplam?r.toplam+'. ziyaret':'ilk ziyaret')+' · '+zaman(r.olusturma)+'</span></div><button class="ok" data-on="'+r.id+'">✓ Onayla</button><button class="no" data-red="'+r.id+'">Reddet</button></div>'});
+ $('bekleyen').innerHTML=h||'<div class="empty">Bekleyen talep yok. Müşteri QR\'ı okutup numarasını girince burada görünecek.</div>';
+ if(yeni){bip();document.title='(!) Yeni damga talebi';setTimeout(function(){document.title='Kasa Paneli'},4000)}}).catch(hata)}
+function ozet(){return K.rpc('kasa_ozet',{p_isletme:K.isletme,p_pin:pin}).then(function(o){$('sM').textContent=o.musteri;$('sB').textContent=o.bugun;$('sH').textContent=o.ay_hediye;
+ $('hazirWrap').classList.toggle('hide',!o.hazir.length);
+ $('hazir').innerHTML=o.hazir.map(function(t){return '<div class="hz"><b>'+K.telGoster(t)+'</b><a class="wa" target="_blank" rel="noopener" href="'+waLink(t)+'">WhatsApp mesajı</a><button class="gv" data-gv="'+t+'">Hediye verildi</button></div>'}).join('');
+ $('liste').innerHTML=o.liste.length?o.liste.map(function(m){var d='';for(var i=1;i<=info.hedef;i++)d+='<i'+(i<=m.damga?' class="on"':'')+'></i>';
+  return '<div class="row"><b>'+K.telGoster(m.telefon,true)+'</b><span class="mini">'+d+'</span><span style="color:var(--mut);min-width:70px;text-align:right">'+m.toplam+' ziyaret</span></div>'}).join(''):'<div class="empty">Henüz müşteri yok.</div>'}).catch(hata)}
+function basla(){$('giris').classList.add('hide');$('panel').classList.remove('hide');bekleyen();ozet();clearInterval(timer);var n=0;timer=setInterval(function(){bekleyen();if(++n%5===0)ozet()},3000)}
+function gir(p){return K.rpc('kasa_giris',{p_isletme:K.isletme,p_pin:p}).then(function(i){info=i;pin=p;if($('hatirla').checked)K.store('kasa-pin-'+K.isletme,p);else sessionStorage.setItem('kasa-pin',p);basla()})}
+$('girBtn').addEventListener('click',function(){var p=$('pin').value.trim();if(!p)return;bip();gir(p).catch(function(e){$('gmsg').textContent=K.mesaj(e.message);$('gmsg').className='msg err'})});
+$('pin').addEventListener('keydown',function(e){if(e.key==='Enter')$('girBtn').click()});
+if(pin)gir(pin).catch(function(){cikis()});
+document.addEventListener('click',function(e){var t=e.target,id;
+ if(id=t.getAttribute('data-on')){t.disabled=true;K.rpc('kasa_onayla',{p_isletme:K.isletme,p_pin:pin,p_id:+id}).then(function(r){bekleyen();ozet();
+   if(r.doldu){$('mTxt').textContent=K.telGoster(r.telefon)+' numaralı müşterinin kartı doldu. Hediyesini verince listeden "Hediye verildi"ye bas.';$('mWa').href=waLink(r.telefon);$('modal').classList.remove('hide')}}).catch(function(e){alert(K.mesaj(e.message));bekleyen()})}
+ if(id=t.getAttribute('data-red')){t.disabled=true;K.rpc('kasa_reddet',{p_isletme:K.isletme,p_pin:pin,p_id:+id}).then(bekleyen).catch(hata)}
+ if(id=t.getAttribute('data-gv')){if(!confirm('Hediye verildi mi? Kart sıfırlanacak.'))return;K.rpc('kasa_hediye',{p_isletme:K.isletme,p_pin:pin,p_tel:id}).then(ozet).catch(function(e){alert(K.mesaj(e.message))})}});
+$('mKapat').addEventListener('click',function(){$('modal').classList.add('hide')});$('mWa').addEventListener('click',function(){setTimeout(function(){$('modal').classList.add('hide')},500)});
+$('ses').addEventListener('click',bip);$('cikis').addEventListener('click',cikis);
+})();
+</script>
+</body></html>

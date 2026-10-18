@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="tr"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sadakat Kartı</title>
+<meta name="theme-color" content="#fbf7f0">
+<link rel="stylesheet" href="kart.css?v=1">
+<script src="config.js?v=1"></script><script src="kart.js?v=1"></script>
+</head><body><div class="wrap">
+<div class="hdr"><div class="logo" id="logo"></div></div>
+<span class="tag" id="tag">SADAKAT KARTI</span>
+<h1>Tekrar gel, <em>kazan.</em></h1>
+<p class="lead" id="lead"></p>
+
+<div class="card"><div class="bgsun" id="bgsun"></div><h2 id="kartAdi"></h2><p id="kartAlt"></p>
+<div class="stamps" id="stamps"></div><p class="durum" id="durum">Numaranı gir, kartını gör.</p></div>
+
+<div class="box" id="formBox">
+<label class="l" for="tel">TELEFON NUMARAN</label>
+<input type="tel" id="tel" inputmode="tel" autocomplete="tel" placeholder="05XX XXX XX XX">
+<label class="chk hide" id="kvkkRow"><input type="checkbox" id="kvkk"><span>Telefon numaramın sadakat kartı için kaydedilmesini kabul ediyorum. <a href="kvkk.html" target="_blank">Aydınlatma metni</a></span></label>
+<button class="btn b1" id="iste">Damga İste</button>
+<p class="msg" id="msg"></p>
+<div class="wait hide" id="wait"><span class="dot"></span><span>Kasaya bildirildi. Çalışanımız onaylayınca damgan buraya eklenecek, sayfayı kapatma.</span></div>
+</div>
+
+<div class="gift hide" id="gift"><div style="font-size:40px">🎁</div><b>Hediyen hazır!</b><p>Kasada bu ekranı göster.</p></div>
+
+<div class="box" style="text-align:center"><div class="stars">★★★★★</div><b style="display:block;margin-top:6px">Bizi beğendin mi?</b>
+<p class="lead" style="font-size:14px;margin-top:4px">Google'da bir yorum bırak, komşularımız da bizi bulsun.</p>
+<a class="btn b3" id="yorum" target="_blank" rel="noopener">Google'da Değerlendir</a></div>
+
+<p class="small"><a href="#" id="degistir" class="hide">Başka bir numara gir</a></p>
+<p class="foot">Sistem: <a href="https://erystudio.com" target="_blank" rel="noopener">ERY Studio</a></p>
+</div>
+<script>
+(function(){
+var K=KART,$=function(i){return document.getElementById(i)},hedef=4,info=null,tel=K.store('kart-tel-'+K.isletme)||'',kayitli=false,poll=null,son=-1;
+$('logo').innerHTML=K.sun(30)+'<div><b>'+K.ad.split(' ')[0].toUpperCase()+'</b><small>'+K.ad.split(' ').slice(1).join(' ')+'</small></div>';
+$('bgsun').innerHTML=K.sun(160,'#fff');$('kartAdi').textContent=K.kartAdi;$('yorum').href=K.googleYorum;document.title=K.kartAdi+' · '+K.ad;
+function stamps(n,anim){var h='';for(var i=1;i<=hedef;i++){var on=i<=n;h+='<div class="st'+(on?' on':'')+(anim&&i===n?' pop':'')+'">'+(i===hedef?'🎁':(on?'✓':i))+'</div>'}$('stamps').innerHTML=h}
+function ciz(d,anim){var n=Math.min(d.damga,hedef);stamps(n,anim);
+ if(n>=hedef){$('durum').textContent=hedef+' / '+hedef+' · Kartın doldu!';$('gift').classList.remove('hide')}
+ else{$('gift').classList.add('hide');$('durum').textContent=n+' / '+hedef+' · '+(hedef-n)+' '+K.birim+' sonra '+info.odul.toLocaleLowerCase('tr-TR')}}
+function msg(t,c){$('msg').textContent=t||'';$('msg').className='msg'+(c?' '+c:'')}
+function durum(anim){return K.rpc('kart_durum',{p_isletme:K.isletme,p_tel:tel}).then(function(d){kayitli=d.kayitli;$('kvkkRow').classList.toggle('hide',kayitli);ciz(d,anim&&d.damga!==son);son=d.damga;return d})}
+function bekle(){$('wait').classList.remove('hide');$('iste').disabled=true;clearInterval(poll);var t0=Date.now();
+ poll=setInterval(function(){durum(true).then(function(d){if(d.son_talep!=='bekliyor'){clearInterval(poll);$('wait').classList.add('hide');$('iste').disabled=false;
+  if(d.son_talep==='onay')msg('Damgan eklendi, afiyet olsun! ☀️','ok');else msg('Talebin onaylanmadı. Kasaya sorabilirsin.','err')}});
+  if(Date.now()-t0>15*60000){clearInterval(poll);$('wait').classList.add('hide');$('iste').disabled=false}},3000)}
+K.rpc('kart_bilgi',{p_isletme:K.isletme}).then(function(i){info=i;hedef=i.hedef;$('kartAlt').textContent='Her '+K.birimDa+' bir damga · '+i.hedef+'. damgada '+i.odul.toLocaleLowerCase('tr-TR');
+ $('lead').textContent=i.hedef+' damga topla, '+i.odul.toLocaleLowerCase('tr-TR')+'. Kağıt kart yok, kartın telefonunda.';stamps(0);
+ if(tel){$('tel').value=K.telGoster(tel);$('degistir').classList.remove('hide');durum().then(function(d){if(d.son_talep==='bekliyor')bekle()}).catch(function(){})}
+}).catch(function(){msg(K.mesaj('BAGLANTI'),'err')});
+$('tel').addEventListener('change',function(){var t=K.tel(this.value);if(t.length===10){tel=t;durum().catch(function(e){msg(K.mesaj(e.message),'err')})}});
+$('iste').addEventListener('click',function(){var t=K.tel($('tel').value);if(!/^5\d{9}$/.test(t))return msg(K.mesaj('GECERSIZ_TELEFON'),'err');
+ tel=t;msg('');var b=this;b.disabled=true;
+ K.rpc('kart_durum',{p_isletme:K.isletme,p_tel:tel}).then(function(d){kayitli=d.kayitli;$('kvkkRow').classList.toggle('hide',kayitli);
+  if(!kayitli&&!$('kvkk').checked){b.disabled=false;$('kvkkRow').classList.remove('hide');throw new Error('KVKK_ONAYI_GEREKLI')}
+  return K.rpc('damga_iste',{p_isletme:K.isletme,p_tel:tel,p_kvkk:$('kvkk').checked})})
+ .then(function(){K.store('kart-tel-'+K.isletme,tel);$('degistir').classList.remove('hide');son=-1;return durum()}).then(bekle)
+ .catch(function(e){b.disabled=false;msg(K.mesaj(e.message),'err')})});
+$('degistir').addEventListener('click',function(e){e.preventDefault();K.store('kart-tel-'+K.isletme,null);tel='';$('tel').value='';$('tel').focus();stamps(0);$('gift').classList.add('hide');$('durum').textContent='Numaranı gir, kartını gör.';this.classList.add('hide')});
+})();
+</script>
+</body></html>
