@@ -2,7 +2,7 @@
    Yeni işletmeye kurarken sadece bu dosyayı değiştir. */
 window.KART = {
   supabaseUrl: 'https://qmrbjwufojjyjskodnpd.supabase.co',
-  supabaseKey: 'BURAYA_ANON_KEY',          // anon / publishable anahtar (secret DEĞİL)
+  supabaseKey: 'sb_publishable_3cWOde0bMgcheJUF97tKtw_-zQ69z8t',          // anon / publishable anahtar (secret DEĞİL)
   isletme: 'morning',                        // Supabase'deki slug
   ad: 'Morning & More',
   kartAdi: 'Morning Kartı',
