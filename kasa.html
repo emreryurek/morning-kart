@@ -47,7 +47,6 @@ h3{font-size:13px;letter-spacing:2px;color:#8b8678;margin:24px 0 10px}
  <div id="hazirWrap" class="hide"><h3>🎁 HEDİYE HAKKI OLANLAR</h3><div id="hazir"></div></div>
  <h3>SON GELENLER</h3><div id="liste"></div>
  <p class="small"><button class="link" id="ses">🔔 Sesi test et</button> · <button class="link" id="cikis">Çıkış</button></p>
- <p class="foot">Müşteri kartı: <a id="kartLink" target="_blank"></a></p>
 </div>
 </div>
 <div class="modal hide" id="modal"><div><div style="font-size:44px">🎁</div><b>Kart doldu!</b><p class="lead" id="mTxt"></p>
@@ -57,7 +56,7 @@ h3{font-size:13px;letter-spacing:2px;color:#8b8678;margin:24px 0 10px}
 (function(){
 var K=KART,$=function(i){return document.getElementById(i)},pin=K.store('kasa-pin-'+K.isletme)||sessionStorage.getItem('kasa-pin')||'',info,bilinen={},timer,ac=null;
 var lg=K.sun(28)+'<div><b>'+K.ad.split(' ')[0].toUpperCase()+'</b><small>'+K.ad.split(' ').slice(1).join(' ')+'</small></div>';$('logo').innerHTML=lg;$('logo2').innerHTML=lg;
-var u=location.href.replace(/kasa\.html.*$/,'');$('kartLink').href=u;$('kartLink').textContent=u.replace(/^https?:\/\//,'');
+
 function bip(){try{ac=ac||new (window.AudioContext||window.webkitAudioContext)();[0,.18].forEach(function(t,i){var o=ac.createOscillator(),g=ac.createGain();o.frequency.value=i?1046:784;o.connect(g);g.connect(ac.destination);g.gain.setValueAtTime(.0001,ac.currentTime+t);g.gain.exponentialRampToValueAtTime(.35,ac.currentTime+t+.02);g.gain.exponentialRampToValueAtTime(.0001,ac.currentTime+t+.3);o.start(ac.currentTime+t);o.stop(ac.currentTime+t+.32)})}catch(e){}if(navigator.vibrate)navigator.vibrate(200)}
 function waLink(t){var m=K.hediyeMesaji.replace('{kart}',K.kartAdi).replace('{odul}',info.odul.toLocaleLowerCase('tr-TR')).replace('{ad}',K.ad);return 'https://wa.me/90'+K.tel(t)+'?text='+encodeURIComponent(m)}
 function hata(e){if(/PIN_/.test(e.message)){cikis();$('gmsg').textContent=K.mesaj(e.message);$('gmsg').className='msg err'}}
