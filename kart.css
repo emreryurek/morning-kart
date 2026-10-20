@@ -10,8 +10,9 @@ h1{font-size:34px;line-height:1.08;letter-spacing:-1px;margin:14px 0 10px;font-w
 .card{background:linear-gradient(140deg,rgba(255,255,255,.08),rgba(0,0,0,.12)),var(--c2);color:#fff;border-radius:24px;padding:22px;position:relative;overflow:hidden;margin-top:20px}
 .card .bgsun{position:absolute;right:-34px;top:-34px;opacity:.22}
 .card h2{font-size:21px}.card p{font-size:14px;color:#d4e6e3;margin-top:3px}
-.stamps{display:flex;gap:9px;margin-top:18px;flex-wrap:wrap}
-.st{width:54px;height:54px;border-radius:50%;border:2px dashed rgba(255,255,255,.5);display:grid;place-items:center;font-size:18px;font-weight:700;transition:.3s}
+.stamps{display:flex;gap:8px;margin-top:18px;align-items:center}
+.st.hd{border-style:solid;border-color:rgba(255,255,255,.35)}
+.st{flex:1 1 0;max-width:54px;aspect-ratio:1;border-radius:50%;border:2px dashed rgba(255,255,255,.5);display:grid;place-items:center;font-size:18px;font-weight:700;transition:.3s}
 .st.on{background:var(--c1);border:2px solid var(--c1)}.st.pop{animation:pop .6s}
 @keyframes pop{0%{transform:scale(.4)}60%{transform:scale(1.18)}100%{transform:scale(1)}}
 .card .durum{margin-top:15px;font-weight:600;font-size:15px}

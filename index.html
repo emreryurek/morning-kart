@@ -37,7 +37,7 @@
 var K=KART,$=function(i){return document.getElementById(i)},hedef=4,info=null,tel=K.store('kart-tel-'+K.isletme)||'',kayitli=false,poll=null,son=-1;
 $('logo').innerHTML=K.sun(30)+'<div><b>'+K.ad.split(' ')[0].toUpperCase()+'</b><small>'+K.ad.split(' ').slice(1).join(' ')+'</small></div>';
 $('bgsun').innerHTML=K.sun(160,'#fff');$('kartAdi').textContent=K.kartAdi;$('yorum').href=K.googleYorum;document.title=K.kartAdi+' · '+K.ad;
-function stamps(n,anim){var h='';for(var i=1;i<=hedef;i++){var on=i<=n;h+='<div class="st'+(on?' on':'')+(anim&&i===n?' pop':'')+'">'+(i===hedef?'🎁':(on?'✓':i))+'</div>'}$('stamps').innerHTML=h}
+function stamps(n,anim){var h='';for(var i=1;i<=hedef;i++){var on=i<=n;h+='<div class="st'+(on?' on':'')+(anim&&i===n?' pop':'')+'">'+(on?'✓':i)+'</div>'}h+='<div class="st hd'+(n>=hedef?' on pop':'')+'">🎁</div>';$('stamps').innerHTML=h}
 function ciz(d,anim){var n=Math.min(d.damga,hedef);stamps(n,anim);
  if(n>=hedef){$('durum').textContent=hedef+' / '+hedef+' · Kartın doldu!';$('gift').classList.remove('hide')}
  else{$('gift').classList.add('hide');$('durum').textContent=n+' / '+hedef+' · '+(hedef-n)+' '+K.birim+' sonra '+info.odul.toLocaleLowerCase('tr-TR')}}
@@ -47,7 +47,7 @@ function bekle(){$('wait').classList.remove('hide');$('iste').disabled=true;clea
  poll=setInterval(function(){durum(true).then(function(d){if(d.son_talep!=='bekliyor'){clearInterval(poll);$('wait').classList.add('hide');$('iste').disabled=false;
   if(d.son_talep==='onay')msg('Damgan eklendi, afiyet olsun! ☀️','ok');else msg('Talebin onaylanmadı. Kasaya sorabilirsin.','err')}});
   if(Date.now()-t0>15*60000){clearInterval(poll);$('wait').classList.add('hide');$('iste').disabled=false}},3000)}
-K.rpc('kart_bilgi',{p_isletme:K.isletme}).then(function(i){info=i;hedef=i.hedef;$('kartAlt').textContent='Her '+K.birimDa+' bir damga · '+i.hedef+'. damgada '+i.odul.toLocaleLowerCase('tr-TR');
+K.rpc('kart_bilgi',{p_isletme:K.isletme}).then(function(i){info=i;hedef=i.hedef;$('kartAlt').textContent=K.slogan||('Her '+K.birimDa+' bir damga · '+i.hedef+'. damgada '+i.odul.toLocaleLowerCase('tr-TR'));
  $('lead').textContent=i.hedef+' damga topla, '+i.odul.toLocaleLowerCase('tr-TR')+'. Kağıt kart yok, kartın telefonunda.';stamps(0);
  if(tel){$('tel').value=K.telGoster(tel);$('degistir').classList.remove('hide');durum().then(function(d){if(d.son_talep==='bekliyor')bekle()}).catch(function(){})}
 }).catch(function(){msg(K.mesaj('BAGLANTI'),'err')});

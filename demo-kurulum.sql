@@ -1,7 +1,7 @@
 -- ERY Studio sitesindeki herkese açık DEMO (erystudio.com/sadakat)
 -- Demo işletmenin PIN'i bilerek herkese açık: 123456
 insert into isletmeler(slug, ad, hedef, odul, pin_hash)
-values ('demo', 'Örnek Kafe', 4, 'Beşinci kahve bizden',
+values ('demo', 'Örnek Kafe', 5, '1 kahve bizden',
         extensions.crypt('123456', extensions.gen_salt('bf')))
 on conflict (slug) do nothing;
 

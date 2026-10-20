@@ -11,5 +11,6 @@ window.KART = {
   renk: '#e8822e', renk2: '#2f6f6a',
   googleYorum: 'https://www.google.com/maps/search/?api=1&query=Morning%20%26%20More%20Maltepe',
   instagram: 'https://instagram.com/morningandmoree',
+  slogan: '4 kahvaltıya çay & tatlı bizden',
   hediyeMesaji: 'Merhaba! ☀️ {kart} doldu. Bir sonraki gelişinde {odul}. Seni bekliyoruz! — {ad}'
 };
